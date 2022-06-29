@@ -8,8 +8,6 @@ Intended for use with the associated Raycast extension (coming soon).
 * Create, update, and delete links
 * Search for links with full-text search
 
----
-
 ## Building
 
 This project uses the `mattn/go-sqlite3` package which must be built with `CGO_ENABLED`.
@@ -32,8 +30,6 @@ If the database file does not exist, it will be created.
 If no command is specified, the program will read the number of entries in the database and exit.
 
 Run the program without any arguments to see more detailed usage information.
-
----
 
 ## Possible Future Changes
 

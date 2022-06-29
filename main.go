@@ -67,6 +67,18 @@ create virtual table if not exists blitlinks using fts5(text, link, title, short
 		count(db)
 		os.Exit(0)
 	}
+
+	switch os.Args[2] {
+	case "insert":
+		if len(os.Args) != 7 {
+			log.Fatal("insert requires 4 arguments")
+		}
+		insert(db, os.Args[3], os.Args[4], os.Args[5], os.Args[6])
+	case "query", "update", "delete":
+		log.Fatal("Not yet implemented: ", os.Args[2])
+	default:
+		log.Fatal("Unknown command: ", os.Args[2])
+	}
 }
 
 func count(db *sql.DB) {
@@ -87,5 +99,18 @@ select count(*) from blitlinks;
 			log.Fatal(err)
 		}
 		log.Printf("Link journal entries: %d", count)
+	}
+}
+
+func insert(db *sql.DB, text, link, title, shortcut string) {
+	stmt, err := db.Prepare("insert into blitlinks(text, link, title, shortcut) values(?, ?, ?, ?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(text, link, title, shortcut)
+	if err != nil {
+		log.Fatal(err)
 	}
 }

@@ -74,6 +74,11 @@ create virtual table if not exists blitlinks using fts5(text, link, title, short
 			log.Fatal("insert requires 4 arguments")
 		}
 		insert(db, os.Args[3], os.Args[4], os.Args[5], os.Args[6])
+	case "query":
+		if len(os.Args) != 4 {
+			log.Fatal("query requires 1 argument")
+		}
+		query(db, os.Args[3])
 	case "update":
 		if len(os.Args) != 8 {
 			log.Fatal("update requires 5 arguments")
@@ -84,8 +89,6 @@ create virtual table if not exists blitlinks using fts5(text, link, title, short
 			log.Fatal("delete requires 1 argument")
 		}
 		delete(db, os.Args[3])
-	case "query":
-		log.Fatal("Not yet implemented: ", os.Args[2])
 	default:
 		log.Fatal("Unknown command: ", os.Args[2])
 	}
@@ -122,6 +125,27 @@ func insert(db *sql.DB, text, link, title, shortcut string) {
 	_, err = stmt.Exec(text, link, title, shortcut)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func query(db *sql.DB, text string) {
+	stmt, err := db.Prepare(`select rowid, text, link, title, shortcut from blitlinks where blitlinks match ?1 order by rank`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rows, err := stmt.Query(text)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+		var id, text, link, title, shortcut string
+		err = rows.Scan(&id, &text, &link, &title, &shortcut)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("%s\t%s\t%s\t%s\t%s", id, text, link, title, shortcut)
 	}
 }
 

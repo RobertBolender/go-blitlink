@@ -20,7 +20,7 @@ func main() {
 	defer db.Close()
 
 	setup := `
-	create virtual table if not exists blitlinks using fts5(text, link, title, shortcut);
+create virtual table if not exists blitlinks using fts5(text, link, title, shortcut);
 	`
 	_, err = db.Exec(setup)
 	if err != nil {
@@ -28,7 +28,7 @@ func main() {
 	}
 
 	countStmt := `
-	select count(*) from blitlinks;
+select count(*) from blitlinks;
 	`
 
 	rows, err := db.Query(countStmt)

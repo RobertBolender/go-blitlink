@@ -51,7 +51,7 @@ Example: go-blitlink mydb.db delete 1
 
 	db, err := sql.Open("sqlite3", os.Args[1])
 	if err != nil {
-		log.Fatal(err)
+		logErr(err)
 	}
 	defer db.Close()
 
@@ -60,7 +60,7 @@ create virtual table if not exists blitlinks using fts5(text, link, title, short
 	`
 	_, err = db.Exec(setup)
 	if err != nil {
-		log.Fatalf("%q: %s\n", err, setup)
+		logErr(err)
 	}
 
 	if len(os.Args) < 3 {
@@ -71,26 +71,26 @@ create virtual table if not exists blitlinks using fts5(text, link, title, short
 	switch os.Args[2] {
 	case "insert":
 		if len(os.Args) != 7 {
-			log.Fatal("insert requires 4 arguments")
+			logErrf("insert requires 4 arguments")
 		}
 		insert(db, os.Args[3], os.Args[4], os.Args[5], os.Args[6])
 	case "query":
 		if len(os.Args) != 4 {
-			log.Fatal("query requires 1 argument")
+			logErrf("query requires 1 argument")
 		}
 		query(db, os.Args[3])
 	case "update":
 		if len(os.Args) != 8 {
-			log.Fatal("update requires 5 arguments")
+			logErrf("update requires 5 arguments")
 		}
 		update(db, os.Args[3], os.Args[4], os.Args[5], os.Args[6], os.Args[7])
 	case "delete":
 		if len(os.Args) != 4 {
-			log.Fatal("delete requires 1 argument")
+			logErrf("delete requires 1 argument")
 		}
 		delete(db, os.Args[3])
 	default:
-		log.Fatal("Unknown command: ", os.Args[2])
+		logErrf("Unknown command: %s", os.Args[2])
 	}
 }
 
@@ -101,7 +101,7 @@ select count(*) from blitlinks;
 
 	rows, err := db.Query(countStmt)
 	if err != nil {
-		log.Fatalf("%q: %s\n", err, countStmt)
+		logErrf("%q: %s\n", err, countStmt)
 	}
 	defer rows.Close()
 
@@ -109,68 +109,83 @@ select count(*) from blitlinks;
 		var count int
 		err = rows.Scan(&count)
 		if err != nil {
-			log.Fatal(err)
+			logErr(err)
 		}
-		log.Printf("Link journal entries: %d", count)
+		logMsgf("Link journal entries: %d", count)
 	}
 }
 
 func insert(db *sql.DB, text, link, title, shortcut string) {
 	stmt, err := db.Prepare("insert into blitlinks(text, link, title, shortcut) values(?, ?, ?, ?)")
 	if err != nil {
-		log.Fatal(err)
+		logErr(err)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(text, link, title, shortcut)
 	if err != nil {
-		log.Fatal(err)
+		logErr(err)
 	}
 }
 
 func query(db *sql.DB, text string) {
 	stmt, err := db.Prepare(`select rowid, text, link, title, shortcut from blitlinks where blitlinks match ?1 order by rank`)
 	if err != nil {
-		log.Fatal(err)
+		logErr(err)
 	}
 
 	rows, err := stmt.Query(text)
 	if err != nil {
-		log.Fatal(err)
+		logErr(err)
 	}
 
 	for rows.Next() {
 		var id, text, link, title, shortcut string
 		err = rows.Scan(&id, &text, &link, &title, &shortcut)
 		if err != nil {
-			log.Fatal(err)
+			logErr(err)
 		}
-		log.Printf("%s\t%s\t%s\t%s\t%s", id, text, link, title, shortcut)
+		logMsgf("%s\t%s\t%s\t%s\t%s", id, text, link, title, shortcut)
 	}
 }
 
 func update(db *sql.DB, id, text, link, title, shortcut string) {
 	stmt, err := db.Prepare("update blitlinks set text = ?, link = ?, title = ?, shortcut = ? where rowid = ?")
 	if err != nil {
-		log.Fatal(err)
+		logErr(err)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(text, link, title, shortcut, id)
 	if err != nil {
-		log.Fatal(err)
+		logErr(err)
 	}
 }
 
 func delete(db *sql.DB, id string) {
 	stmt, err := db.Prepare("delete from blitlinks where rowid = ?")
 	if err != nil {
-		log.Fatal(err)
+		logErr(err)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(id)
 	if err != nil {
-		log.Fatal(err)
+		logErr(err)
 	}
+}
+
+func logMsgf(format string, v ...any) {
+	log.SetOutput(os.Stdout)
+	log.Printf(format, v...)
+}
+
+func logErr(err error) {
+	log.SetOutput(os.Stderr)
+	log.Fatal(err)
+}
+
+func logErrf(format string, v ...any) {
+	log.SetOutput(os.Stderr)
+	log.Fatalf(format, v...)
 }

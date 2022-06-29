@@ -11,11 +11,11 @@ import (
 func main() {
 	if len(os.Args) < 2 {
 		log.Fatal(`
-Usage: go-blitlink <dbfile> [<command>] [<args>]
+Usage: go-blitlink [<dbfile>] [<command>] [<args>]
 
 Valid commands: insert, query, update, delete
 
-If the database does not exist, it will be created.
+If the database file does not exist, it will be created.
 When no command is specified, the program will print the number of entries in the database.
 
 insert

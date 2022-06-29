@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -139,14 +141,20 @@ func query(db *sql.DB, text string) {
 		logErr(err)
 	}
 
+	var results = make([][]string, 0)
 	for rows.Next() {
 		var id, text, link, title, shortcut string
 		err = rows.Scan(&id, &text, &link, &title, &shortcut)
 		if err != nil {
 			logErr(err)
 		}
-		logMsgf("%s\t%s\t%s\t%s\t%s", id, text, link, title, shortcut)
+		results = append(results, []string{id, text, link, title, shortcut})
 	}
+	json, err := json.Marshal(results)
+	if err != nil {
+		logErr(err)
+	}
+	logMsgf("%s", json)
 }
 
 func update(db *sql.DB, id, text, link, title, shortcut string) {
@@ -176,8 +184,7 @@ func delete(db *sql.DB, id string) {
 }
 
 func logMsgf(format string, v ...any) {
-	log.SetOutput(os.Stdout)
-	log.Printf(format, v...)
+	fmt.Printf(format+"\n", v...)
 }
 
 func logErr(err error) {

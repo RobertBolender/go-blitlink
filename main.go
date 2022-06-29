@@ -113,7 +113,7 @@ select count(*) from blitlinks;
 		if err != nil {
 			logErr(err)
 		}
-		logMsgf("Link journal entries: %d", count)
+		logMsgf(`{ "count": "%d" }`, count)
 	}
 }
 

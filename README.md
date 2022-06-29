@@ -15,10 +15,10 @@ Intended for use with the associated Raycast extension (coming soon).
 This project uses the `mattn/go-sqlite3` package which must be built with `CGO_ENABLED`.
 This project also uses the `'fts5'` sqlite module for full-text search, which must be enabled with a build tag.
 
-The included `build.sh` script will run this for you:
+The included `./script/build` script will run this for you:
 
 ```
-sh build.sh
+./script/build
 CGO_ENABLED=1 go build --tags "fts5"
 ```
 

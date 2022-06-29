@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "Building..."
+CGO_ENABLED=1 go build --tags "fts5"
+echo "Done."

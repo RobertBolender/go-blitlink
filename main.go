@@ -74,12 +74,17 @@ create virtual table if not exists blitlinks using fts5(text, link, title, short
 			log.Fatal("insert requires 4 arguments")
 		}
 		insert(db, os.Args[3], os.Args[4], os.Args[5], os.Args[6])
+	case "update":
+		if len(os.Args) != 8 {
+			log.Fatal("update requires 5 arguments")
+		}
+		update(db, os.Args[3], os.Args[4], os.Args[5], os.Args[6], os.Args[7])
 	case "delete":
 		if len(os.Args) != 4 {
 			log.Fatal("delete requires 1 argument")
 		}
 		delete(db, os.Args[3])
-	case "query", "update":
+	case "query":
 		log.Fatal("Not yet implemented: ", os.Args[2])
 	default:
 		log.Fatal("Unknown command: ", os.Args[2])
@@ -115,6 +120,19 @@ func insert(db *sql.DB, text, link, title, shortcut string) {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(text, link, title, shortcut)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func update(db *sql.DB, id, text, link, title, shortcut string) {
+	stmt, err := db.Prepare("update blitlinks set text = ?, link = ?, title = ?, shortcut = ? where rowid = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(text, link, title, shortcut, id)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,7 +1,7 @@
 # go-blitlink
 
 A simple CLI tool for storing links for future use.  
-Intended for use with the associated Raycast extension (coming soon).
+Intended for use with Raycast as a [community extension](https://github.com/RobertBolender/raycast-blitlink).
 
 ## Features
 

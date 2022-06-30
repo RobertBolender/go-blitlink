@@ -128,6 +128,7 @@ func insert(db *sql.DB, text, link, title, shortcut string) {
 	if err != nil {
 		logErr(err)
 	}
+	logMsgf("inserted %s %s %s %s", text, link, title, shortcut)
 }
 
 func query(db *sql.DB, text string) {
@@ -168,6 +169,7 @@ func update(db *sql.DB, id, text, link, title, shortcut string) {
 	if err != nil {
 		logErr(err)
 	}
+	logMsgf("updated %s %s %s %s %s", id, text, link, title, shortcut)
 }
 
 func delete(db *sql.DB, id string) {

@@ -131,7 +131,7 @@ func insert(db *sql.DB, text, link, title, shortcut string) {
 }
 
 func query(db *sql.DB, text string) {
-	stmt, err := db.Prepare(`select rowid, text, link, title, shortcut from blitlinks where blitlinks match ?1 order by rank`)
+	stmt, err := db.Prepare(`select rowid, text, link, title, shortcut from blitlinks where blitlinks match 'shortcut : ' || ?1 || ' OR ' || ?1 || '*' order by rank`)
 	if err != nil {
 		logErr(err)
 	}
